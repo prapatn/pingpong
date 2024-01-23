@@ -34,7 +34,7 @@ func (h handler) NewMatch(c *fiber.Ctx) error {
 
 	// Start Player A
 	fmt.Println("New match started!")
-	chA <- 1
+	chA <- 0
 
 	if err, ok := <-errs; ok {
 		c.Status(fiber.StatusBadRequest)
@@ -49,7 +49,7 @@ func (h handler) NewMatch(c *fiber.Ctx) error {
 func player(name string, receive chan int, send chan int, errs chan error) {
 	for {
 		ballPowerReceive := <-receive
-		if ballPowerReceive == 0 {
+		if ballPowerReceive < 0 {
 			close(receive)
 			close(send)
 			close(errs)
@@ -60,7 +60,7 @@ func player(name string, receive chan int, send chan int, errs chan error) {
 		ballPowerSend := rand.Intn(100) + 1
 		if ballPowerReceive > ballPowerSend {
 			fmt.Printf("Player %v loses (Power : %v)\n", name, ballPowerSend)
-			send <- 0
+			send <- -1
 			break
 		}
 
@@ -68,7 +68,7 @@ func player(name string, receive chan int, send chan int, errs chan error) {
 		err := tablePing(&ballPowerSend)
 		if err != nil {
 			errs <- err
-			send <- 0
+			send <- -1
 			break
 		}
 

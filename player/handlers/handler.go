@@ -37,9 +37,9 @@ func (h handler) NewMatch(c *fiber.Ctx) error {
 	chA <- 1
 
 	if err, ok := <-errs; ok {
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
-			"status": fiber.StatusBadRequest,
-			"error":  err.Error(),
+			"error": err.Error(),
 		})
 	}
 

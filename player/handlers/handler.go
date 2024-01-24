@@ -8,11 +8,11 @@ import (
 
 type Handeler interface {
 	NewMatch(ctx *fiber.Ctx) error
+	GetLastMatch(c *fiber.Ctx) error
 }
 
 type handler struct {
 	service services.Services
-	// redisClient *redis.Client
 }
 
 func NewHandler(service services.Services) Handeler {
@@ -30,4 +30,18 @@ func (h handler) NewMatch(c *fiber.Ctx) error {
 	}
 
 	return c.SendStatus(fiber.StatusOK)
+}
+
+func (h handler) GetLastMatch(c *fiber.Ctx) error {
+	lastMatch, err := h.service.GetLastMatch()
+
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(lastMatch)
 }

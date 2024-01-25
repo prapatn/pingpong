@@ -10,6 +10,7 @@ import (
 type Services interface {
 	InsertLog() (models.MatchLog, error)
 	GetLastMatch() (matchLog models.MatchLog, err error)
+	GetMatchById(id string) (matchLog models.MatchLog, err error)
 }
 
 type service struct {

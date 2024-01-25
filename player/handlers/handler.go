@@ -9,6 +9,7 @@ import (
 type Handeler interface {
 	NewMatch(ctx *fiber.Ctx) error
 	GetLastMatch(c *fiber.Ctx) error
+	GetMatchById(c *fiber.Ctx) error
 }
 
 type handler struct {
@@ -44,4 +45,19 @@ func (h handler) GetLastMatch(c *fiber.Ctx) error {
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(lastMatch)
+}
+
+func (h handler) GetMatchById(c *fiber.Ctx) error {
+	id := c.Params("id")
+	matchLog, err := h.service.GetMatchById(id)
+
+	if err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(matchLog)
 }

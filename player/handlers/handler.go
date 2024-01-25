@@ -20,7 +20,7 @@ func NewHandler(service services.Services) Handeler {
 }
 
 func (h handler) NewMatch(c *fiber.Ctx) error {
-	err := h.service.InsertLog()
+	log, err := h.service.InsertLog()
 
 	if err != nil {
 		c.Status(fiber.StatusBadRequest)
@@ -29,7 +29,7 @@ func (h handler) NewMatch(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.SendStatus(fiber.StatusOK)
+	return c.JSON(log)
 }
 
 func (h handler) GetLastMatch(c *fiber.Ctx) error {

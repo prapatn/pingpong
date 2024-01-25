@@ -1,0 +1,30 @@
+-- Active: 1706003787370@@127.0.0.1@27017@local_local_tableGroup
+db('local').collection('match_log').insertOne({
+  "ID": "1706168948283183900",
+  "Process": [
+    {
+      "Player": "A",
+      "Turn": 1,
+      "BallPower": 30,
+      "Time": "2024-01-25 14:49:08"
+    },
+    {
+      "Player": "B",
+      "Turn": 1,
+      "BallPower": 36,
+      "Time": "2024-01-25 14:49:08"
+    },
+    {
+      "Player": "A",
+      "Turn": 2,
+      "BallPower": 56,
+      "Time": "2024-01-25 14:49:09"
+    },
+    {
+      "Player": "B",
+      "Turn": 2,
+      "BallPower": 42,
+      "Time": "2024-01-25 14:49:10"
+    }
+  ]
+})

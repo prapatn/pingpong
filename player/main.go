@@ -2,9 +2,8 @@ package main
 
 import (
 	"log"
-	"player/handlers"
-	"player/repositories"
-	"player/services"
+	matchlogs "player/pkg/match_logs"
+	"player/pkg/processes"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
@@ -26,12 +25,14 @@ func main() {
 		},
 	))
 
-	repository := repositories.NewRepository(db)
-	service := services.NewService(redisClient, repository)
-	handler := handlers.NewHandler(service)
-	app.Get("new-match", handler.NewMatch)
-	app.Get("match", handler.GetLastMatch)
-	app.Get("match/:id", handler.GetMatchById)
+	// App Repository
+	matchLogReposiroty := matchlogs.NewMatchLogRepository(db)
+	processesReposiroty := processes.NewProcessesReposiroty(db)
+
+	// App Services
+	matchLogUsecase := matchlogs.NewMatchLogUsecase(matchLogReposiroty, processesReposiroty, redisClient)
+
+	matchlogs.NewMatchLogHandler(app.Group("/"), matchLogUsecase)
 
 	app.Listen(":8888")
 }

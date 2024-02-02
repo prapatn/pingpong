@@ -21,3 +21,14 @@ services:
       - ./data/redis:/data
       - ./config/redis.conf:/redis.conf
     command: redis-server /redis.conf
+
+    # mariadb:
+    # image: mariadb
+    # container_name: mariadb
+    # environment:
+    #   - MARIADB_ROOT_PASSWORD=example
+    #   - MARIADB_DATABASE=example
+    # ports:
+    #   - 3306:3306
+    # volumes:
+    #   - ./data/mariadb:/var/lib/mysql

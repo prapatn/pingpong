@@ -17,11 +17,16 @@ import (
 )
 
 var matchLog models.MatchLog
+var err error
 
 func (s service) InsertLog() (models.MatchLog, error) {
-	matchLog = models.MatchLog{}
+	// matchLog = models.MatchLog{}
+
+	// MySQL
+	matchLog, err = s.repo.InsertMatch()
+
 	//CSV
-	matchLog.ID = strconv.FormatInt(time.Now().UnixNano(), 10)
+	// matchLog.ID = strconv.FormatInt(time.Now().UnixNano(), 10)
 	fmt.Printf("Match %v started!\n", matchLog.ID)
 	csvFile, err := os.Create(fmt.Sprintf("csv-log/match_%v_log.csv", matchLog.ID))
 	if err != nil {
@@ -63,16 +68,16 @@ func (s service) player(player string, receive chan int, send chan int, errs cha
 		ballPowerSend := rand.Intn(100) + 1
 		if ballPowerReceive > ballPowerSend {
 			fmt.Printf("Player %v loses (Power : %v)\n", player, ballPowerSend)
-			err := writeToCSV(player, turn, ballPowerSend, csvwriter)
+			err := s.writeToCSV(player, turn, ballPowerSend, csvwriter)
 			if err != nil {
 				errs <- err
 			}
 
 			//InsertMatch to Database
-			err = s.repo.InsertMatch(matchLog)
-			if err != nil {
-				errs <- err
-			}
+			// err = s.repo.InsertMatch(matchLog)
+			// if err != nil {
+			// 	errs <- err
+			// }
 
 			//Set Redis
 			dataJson, err := json.Marshal(matchLog)
@@ -93,7 +98,7 @@ func (s service) player(player string, receive chan int, send chan int, errs cha
 			break
 		}
 
-		err = writeToCSV(player, turn, ballPowerSend, csvwriter)
+		err = s.writeToCSV(player, turn, ballPowerSend, csvwriter)
 		if err != nil {
 			errs <- err
 			send <- -1
@@ -123,14 +128,19 @@ func tablePing(ballPower *int) error {
 	return nil
 }
 
-func writeToCSV(player string, turn int, ballPower int, csvwriter *csv.Writer) error {
-	now := time.Now().Format("2006-01-02 15:04:05")
-	row := []string{matchLog.ID, player, strconv.Itoa(turn), strconv.Itoa(ballPower), now}
+func (s service) writeToCSV(player string, turn int, ballPower int, csvwriter *csv.Writer) error {
+	now := time.Now()
+	row := []string{strconv.Itoa(int(matchLog.ID)), player, strconv.Itoa(turn), strconv.Itoa(ballPower), now.Format("2006-01-02 15:04:05")}
 	err := csvwriter.Write(row)
 	if err != nil {
 		return err
 	}
 	csvwriter.Flush()
-	matchLog.Process = append(matchLog.Process, models.Process{Player: player, Turn: turn, BallPower: ballPower, Time: now})
+	process := models.Processes{MatchLogID: matchLog.ID, Player: player, Turn: turn, BallPower: ballPower, Time: now}
+	err = s.repo.InsertProcess(&process)
+	if err != nil {
+		return err
+	}
+	matchLog.Processes = append(matchLog.Processes, process)
 	return nil
 }

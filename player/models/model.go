@@ -1,13 +1,19 @@
 package models
 
+import (
+	"time"
+)
+
 type MatchLog struct {
-	ID      string    `bson:"_id"`
-	Process []Process `bson:"process"`
+	ID        uint        `json:"id"`
+	Processes []Processes `json:"processes" gorm:"foreignKey:MatchLogID"`
 }
 
-type Process struct {
-	Player    string `bson:"player"`
-	Turn      int    `bson:"turn"`
-	BallPower int    `bson:"ball_power"`
-	Time      string `bson:"time"`
+type Processes struct {
+	ID         uint      `json:"id"`
+	MatchLogID uint      `json:"match_log_id" gorm:"index"`
+	Player     string    `json:"player"`
+	Turn       int       `json:"turn"`
+	BallPower  int       `json:"ball_power"`
+	Time       time.Time `json:"time"`
 }

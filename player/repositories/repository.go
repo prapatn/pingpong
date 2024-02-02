@@ -1,23 +1,24 @@
 package repositories
 
 import (
-	"context"
 	"player/models"
 
-	"go.mongodb.org/mongo-driver/mongo"
+	"gorm.io/gorm"
 )
 
 type Repository interface {
-	InsertMatch(log models.MatchLog) error
+	InsertMatch() (log models.MatchLog, err error)
 	GetMatchById(id string) (models.MatchLog, error)
+	InsertProcess(process *models.Processes) error
 }
 
 type repository struct {
-	db  *mongo.Client
-	ctx context.Context
+	db *gorm.DB
+	// ctx context.Context
 }
 
-func NewRepository(db *mongo.Client) Repository {
-	ctx := context.TODO()
-	return repository{db: db, ctx: ctx}
+func NewRepository(db *gorm.DB) Repository {
+	db.AutoMigrate(&models.MatchLog{})
+	db.AutoMigrate(&models.Processes{})
+	return repository{db: db}
 }

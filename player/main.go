@@ -77,7 +77,7 @@ func initRedis() *redis.Client {
 // }
 
 func initMySQL() *gorm.DB {
-	dial := mysql.Open("root:@tcp(localhost:3306)/local?parseTime=true")
+	dial := mysql.Open("root:example@tcp(localhost:3306)/local?parseTime=true")
 	db, err := gorm.Open(dial, &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})

@@ -12,9 +12,11 @@ type matchLogReposiroty struct {
 }
 
 func NewMatchLogRepository(db *gorm.DB) domain.MatchLogRepository {
-	return &matchLogReposiroty{
+	matchLogReposiroty := &matchLogReposiroty{
 		DB: db,
 	}
+	// matchLogReposiroty.DbMigrator()
+	return matchLogReposiroty
 }
 
 func (r *matchLogReposiroty) DbMigrator() (err error) {

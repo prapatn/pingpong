@@ -12,9 +12,11 @@ type processesReposiroty struct {
 }
 
 func NewProcessesReposiroty(db *gorm.DB) domain.ProcessRepository {
-	return &processesReposiroty{
+	processesReposiroty := &processesReposiroty{
 		DB: db,
 	}
+	// processesReposiroty.DbMigrator()
+	return processesReposiroty
 }
 
 func (r *processesReposiroty) DbMigrator() (err error) {

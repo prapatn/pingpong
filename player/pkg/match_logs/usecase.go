@@ -14,6 +14,7 @@ import (
 	"player/pkg/domain"
 	"player/pkg/models"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -40,12 +41,17 @@ func (u *matchLogUsecase) DbMigrator() (err error) {
 
 var matchLog models.MatchLog
 var err error
+var mutex sync.Mutex
+var wg sync.WaitGroup
 
 func (s *matchLogUsecase) InsertLog() (models.MatchLog, error) {
 	// matchLog = models.MatchLog{}
 
 	// MySQL
 	matchLog, err = s.matchLogRepository.InsertMatch()
+	if err != nil {
+		return matchLog, err
+	}
 
 	//CSV
 	// matchLog.ID = strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -58,6 +64,8 @@ func (s *matchLogUsecase) InsertLog() (models.MatchLog, error) {
 
 	csvwriter := csv.NewWriter(csvFile)
 	defer csvwriter.Flush()
+
+	wg.Add(2)
 
 	chA := make(chan int)
 	chB := make(chan int)
@@ -72,11 +80,14 @@ func (s *matchLogUsecase) InsertLog() (models.MatchLog, error) {
 	if err, ok := <-errs; ok {
 		return matchLog, err
 	}
-
+	wg.Wait()
 	return matchLog, nil
 }
 
 func (s *matchLogUsecase) player(player string, receive chan int, send chan int, errs chan error, csvwriter *csv.Writer) {
+	// mutex.Lock()
+	// defer mutex.Unlock()
+	defer wg.Done()
 	for turn := 1; ; turn++ {
 		ballPowerReceive := <-receive
 		if ballPowerReceive < 0 {

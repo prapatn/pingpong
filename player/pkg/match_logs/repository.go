@@ -15,7 +15,7 @@ func NewMatchLogRepository(db *gorm.DB) domain.MatchLogRepository {
 	matchLogReposiroty := &matchLogReposiroty{
 		DB: db,
 	}
-	// matchLogReposiroty.DbMigrator()
+	matchLogReposiroty.DbMigrator()
 	return matchLogReposiroty
 }
 

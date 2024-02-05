@@ -45,6 +45,8 @@ var mutex sync.Mutex
 var wg sync.WaitGroup
 
 func (s *matchLogUsecase) InsertLog() (models.MatchLog, error) {
+	mutex.Lock()
+	defer mutex.Unlock()
 	// matchLog = models.MatchLog{}
 
 	// MySQL
@@ -76,11 +78,10 @@ func (s *matchLogUsecase) InsertLog() (models.MatchLog, error) {
 
 	// Start Player A
 	chA <- 0
-
+	wg.Wait()
 	if err, ok := <-errs; ok {
 		return matchLog, err
 	}
-	wg.Wait()
 	return matchLog, nil
 }
 
@@ -140,7 +141,6 @@ func (s *matchLogUsecase) player(player string, receive chan int, send chan int,
 
 		fmt.Printf("Player %v Ball Power : %v\n", player, ballPowerSend)
 		send <- ballPowerSend
-		time.Sleep(time.Second)
 	}
 }
 

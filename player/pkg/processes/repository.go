@@ -15,7 +15,7 @@ func NewProcessesReposiroty(db *gorm.DB) domain.ProcessRepository {
 	processesReposiroty := &processesReposiroty{
 		DB: db,
 	}
-	// processesReposiroty.DbMigrator()
+	processesReposiroty.DbMigrator()
 	return processesReposiroty
 }
 

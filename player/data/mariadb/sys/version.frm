@@ -7,7 +7,11 @@ definer_user=mariadb.sys
 definer_host=localhost
 suid=0
 with_check_option=0
+<<<<<<< HEAD
 timestamp=0001707056937006291
+=======
+timestamp=0001707192849781166
+>>>>>>> skeleton
 create-version=2
 source=SELECT \'1.5.1\' AS sys_version,\n        version() AS mysql_version;
 client_cs_name=utf8mb3

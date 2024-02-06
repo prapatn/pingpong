@@ -1,1 +1,13 @@
 docker compose run --rm k6 run /scripts/test.js
+
+
+1.grafana
+    dashboard tools ตัวนึง ซึ่งจะแสดงผลออกมาเป็นพวก กราฟข้อมูล metrix ต่าง ๆ 
+    โดยความเทพของมันคือมันจะดึงข้อมูลออกมาได้ในระดับ realtime 
+    โดยมันสามารถดึงข้อมูลมาจาก datasource ที่เป็นที่นิยมได้อย่างมาก 
+    เช่น influxdb, Prometheus, elasticsearch, AWS CloudWatch และ datasource ตัวอื่นที่เป็นที่นิยม
+
+2.influxdb
+    Time series database ความหมายคือ การเก็บบันทึกข้อมูลโดยมีค่าของเวลาเป็นตัวอ้างอิง
+3.k6
+    run test scripts

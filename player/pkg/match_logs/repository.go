@@ -24,7 +24,7 @@ func (r *matchLogReposiroty) DbMigrator() (err error) {
 	return
 }
 
-func (r matchLogReposiroty) GetMatchById(id string) (matchLog models.MatchLog, err error) {
+func (r matchLogReposiroty) GetMatchByMacthNumber(number string) (matchLog []models.MatchLog, err error) {
 	// Mongo
 	// filter := bson.D{{Key: "_id", Value: id}}
 
@@ -35,13 +35,13 @@ func (r matchLogReposiroty) GetMatchById(id string) (matchLog models.MatchLog, e
 
 	//MySQL
 
-	err = r.DB.Table("match_logs").Preload("Processes").Where(id).First(&matchLog).Error
+	err = r.DB.Table("match_logs").Where("match_number = ?", number).Order("id").Find(&matchLog).Error
 
 	return matchLog, err
 
 }
 
-func (r matchLogReposiroty) InsertMatch() (log models.MatchLog, err error) {
+func (r matchLogReposiroty) InsertMatch(log models.MatchLog) (id int, err error) {
 	//Mongo
 
 	// result, err := r.db.Database("local").Collection("match_log").InsertOne(r.ctx, log)
@@ -56,5 +56,5 @@ func (r matchLogReposiroty) InsertMatch() (log models.MatchLog, err error) {
 
 	err = r.DB.Create(&log).Error
 
-	return log, err
+	return int(log.ID), err
 }

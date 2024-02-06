@@ -18,7 +18,7 @@ func NewMatchLogHandler(matchLogRoute fiber.Router, matchLogUsecase domain.Match
 
 	matchLogRoute.Get("new-match", handler.NewMatch())
 	matchLogRoute.Get("match", handler.GetLastMatch())
-	matchLogRoute.Get("match/:id", handler.GetMatchById())
+	matchLogRoute.Get("match/:match", handler.GetMatchByMacthNumber())
 }
 
 func (h *MatchLogHandler) NewMatch() fiber.Handler {
@@ -52,10 +52,10 @@ func (h *MatchLogHandler) GetLastMatch() fiber.Handler {
 	}
 }
 
-func (h *MatchLogHandler) GetMatchById() fiber.Handler {
+func (h *MatchLogHandler) GetMatchByMacthNumber() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		id := c.Params("id")
-		matchLog, err := h.matchLogUsecase.GetMatchById(id)
+		match := c.Params("match")
+		matchLog, err := h.matchLogUsecase.GetMatchByMacthNumber(match)
 
 		if err != nil {
 			c.Status(fiber.StatusBadRequest)

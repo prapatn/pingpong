@@ -22,14 +22,12 @@ import (
 
 type matchLogUsecase struct {
 	matchLogRepository domain.MatchLogRepository
-	processRepository  domain.ProcessRepository
 	redisClient        *redis.Client
 }
 
-func NewMatchLogUsecase(matchLogRepository domain.MatchLogRepository, processRepository domain.ProcessRepository, redisClient *redis.Client) domain.MatchLogUsecase {
+func NewMatchLogUsecase(matchLogRepository domain.MatchLogRepository, redisClient *redis.Client) domain.MatchLogUsecase {
 	return &matchLogUsecase{
 		matchLogRepository: matchLogRepository,
-		processRepository:  processRepository,
 		redisClient:        redisClient,
 	}
 }
@@ -39,29 +37,24 @@ func (u *matchLogUsecase) DbMigrator() (err error) {
 	return
 }
 
-var matchLog models.MatchLog
+var matchLogs []models.MatchLog
+var matchNumber string
+
 var err error
 var mutex sync.Mutex
 var wg sync.WaitGroup
 
-func (s *matchLogUsecase) InsertLog() (models.MatchLog, error) {
+func (s *matchLogUsecase) InsertLog() ([]models.MatchLog, error) {
 	mutex.Lock()
 	defer mutex.Unlock()
-	// matchLog = models.MatchLog{}
-
-	// MySQL
-	matchLog, err = s.matchLogRepository.InsertMatch()
-	if err != nil {
-		return matchLog, err
-	}
 
 	//CSV
-	// matchLog.ID = strconv.FormatInt(time.Now().UnixNano(), 10)
-	fmt.Printf("Match %v started!\n", matchLog.ID)
-	csvFile, err := os.Create(fmt.Sprintf("csv-log/match_%v_log.csv", matchLog.ID))
+	matchNumber = strconv.FormatInt(time.Now().UnixNano(), 10)
+	fmt.Printf("Match %v started!\n", matchNumber)
+	csvFile, err := os.Create(fmt.Sprintf("csv-log/match_%v_log.csv", matchNumber))
 	if err != nil {
 		log.Println(err)
-		return matchLog, errors.New(fmt.Sprintf("Create file match_%v_log.csv fail", matchLog.ID))
+		return matchLogs, errors.New(fmt.Sprintf("Create file match_%v_log.csv fail", matchNumber))
 	}
 
 	csvwriter := csv.NewWriter(csvFile)
@@ -80,9 +73,9 @@ func (s *matchLogUsecase) InsertLog() (models.MatchLog, error) {
 	chA <- 0
 	wg.Wait()
 	if err, ok := <-errs; ok {
-		return matchLog, err
+		return matchLogs, err
 	}
-	return matchLog, nil
+	return matchLogs, nil
 }
 
 func (s *matchLogUsecase) player(player string, receive chan int, send chan int, errs chan error, csvwriter *csv.Writer) {
@@ -114,7 +107,7 @@ func (s *matchLogUsecase) player(player string, receive chan int, send chan int,
 			// }
 
 			//Set Redis
-			dataJson, err := json.Marshal(matchLog)
+			dataJson, err := json.Marshal(matchLogs)
 			if err != nil {
 				errs <- err
 			}
@@ -163,30 +156,41 @@ func tablePing(ballPower *int) error {
 
 func (s *matchLogUsecase) writeToCSV(player string, turn int, ballPower int, csvwriter *csv.Writer) error {
 	now := time.Now()
-	row := []string{strconv.Itoa(int(matchLog.ID)), player, strconv.Itoa(turn), strconv.Itoa(ballPower), now.Format("2006-01-02 15:04:05")}
+	row := []string{matchNumber, player, strconv.Itoa(turn), strconv.Itoa(ballPower), now.Format("2006-01-02 15:04:05")}
 	err := csvwriter.Write(row)
 	if err != nil {
 		return err
 	}
 	csvwriter.Flush()
-	process := models.Processes{MatchLogID: matchLog.ID, Player: player, Turn: turn, BallPower: ballPower, Time: now}
-	err = s.processRepository.InsertProcess(&process)
+	matchLog := models.MatchLog{
+		MatchNumber: matchNumber,
+		Player:      player,
+		Turn:        turn,
+		BallPower:   ballPower,
+		Time:        now,
+	}
+	id, err := s.matchLogRepository.InsertMatch(matchLog)
+	matchLog.ID = uint(id)
+
+	matchLogs = append(matchLogs, matchLog)
+
 	if err != nil {
+		log.Println(err)
 		return err
 	}
-	matchLog.Processes = append(matchLog.Processes, process)
+
 	return nil
 }
 
-func (s *matchLogUsecase) GetLastMatch() (matchLog models.MatchLog, err error) {
+func (s *matchLogUsecase) GetLastMatch() (matchLogs []models.MatchLog, err error) {
 	//GET LastMatch
 	dataChk, err := s.redisClient.Get(context.Background(), "LastMatch").Result()
 	if err == nil {
-		err = json.Unmarshal([]byte(dataChk), &matchLog)
+		err = json.Unmarshal([]byte(dataChk), &matchLogs)
 	}
-	return matchLog, err
+	return matchLogs, err
 }
 
-func (s *matchLogUsecase) GetMatchById(id string) (matchLog models.MatchLog, err error) {
-	return s.matchLogRepository.GetMatchById(id)
+func (s *matchLogUsecase) GetMatchByMacthNumber(number string) (matchLog []models.MatchLog, err error) {
+	return s.matchLogRepository.GetMatchByMacthNumber(number)
 }

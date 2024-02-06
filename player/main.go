@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	matchlogs "player/pkg/match_logs"
-	"player/pkg/processes"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
@@ -27,10 +26,9 @@ func main() {
 
 	// App Repository
 	matchLogReposiroty := matchlogs.NewMatchLogRepository(db)
-	processesReposiroty := processes.NewProcessesReposiroty(db)
 
 	// App Services
-	matchLogUsecase := matchlogs.NewMatchLogUsecase(matchLogReposiroty, processesReposiroty, redisClient)
+	matchLogUsecase := matchlogs.NewMatchLogUsecase(matchLogReposiroty, redisClient)
 
 	matchlogs.NewMatchLogHandler(app.Group("/"), matchLogUsecase)
 

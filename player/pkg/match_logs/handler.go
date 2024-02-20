@@ -17,7 +17,7 @@ func NewMatchLogHandler(matchLogRoute fiber.Router, matchLogUsecase domain.Match
 	}
 
 	matchLogRoute.Get("new-match", handler.NewMatch())
-	// matchLogRoute.Get("match", handler.GetLastMatch())
+	matchLogRoute.Get("match", handler.GetLastMatch())
 	matchLogRoute.Get("match/:match", handler.GetMatchByMacthNumber())
 }
 

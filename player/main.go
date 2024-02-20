@@ -5,18 +5,20 @@ import (
 	"log"
 	"os"
 	matchlogs "player/pkg/match_logs"
+	"strconv"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 )
 
 func main() {
-	// redisClient := initRedis()
+	redisClient := initRedis()
 	// db := initMongoDB()
 	db := initMySQL()
 
@@ -32,18 +34,18 @@ func main() {
 	matchLogReposiroty := matchlogs.NewMatchLogRepository(db)
 
 	// App Services
-	matchLogUsecase := matchlogs.NewMatchLogUsecase(matchLogReposiroty, nil)
+	matchLogUsecase := matchlogs.NewMatchLogUsecase(matchLogReposiroty, redisClient)
 
 	matchlogs.NewMatchLogHandler(app.Group("/"), matchLogUsecase)
 
 	app.Listen(":8888")
 }
 
-// func initRedis() *redis.Client {
-// 	return redis.NewClient(&redis.Options{
-// 		Addr: "10.11.232.171:6379",
-// 	})
-// }
+func initRedis() *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+}
 
 // func initMongoDB() *mongo.Client {
 // 	// monitor := &event.CommandMonitor{
@@ -88,13 +90,15 @@ func initMySQL() *gorm.DB {
 
 	// Read database configuration from .env file
 	host := os.Getenv("DB_HOST")
-	// port, _ := strconv.Atoi(os.Getenv("DB_PORT")) // Convert port to int
+	port, _ := strconv.Atoi(os.Getenv("DB_PORT")) // Convert port to int
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
 	dbname := os.Getenv("DB_NAME")
 
-	// Configure your MySQL database details here
-	dsn := fmt.Sprintf("%s:%s@unix(%s)/%s", user, password, host, dbname)
+	// Configure your PostgreSQL database details here
+	dsn := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
 
 	// New logger for detailed SQL logging
 	newLogger := gormLogger.New(
@@ -106,7 +110,7 @@ func initMySQL() *gorm.DB {
 		},
 	)
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: newLogger,
 	})
 

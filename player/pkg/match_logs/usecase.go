@@ -106,11 +106,11 @@ func (s *matchLogUsecase) player(player string, receive chan int, send chan int,
 			// }
 
 			//Set Redis
-			// dataJson, err := json.Marshal(matchLogs)
-			// if err != nil {
-			// 	errs <- err
-			// }
-			// s.redisClient.Set(context.Background(), "LastMatch", string(dataJson), time.Hour*24).Err()
+			dataJson, err := json.Marshal(matchLogs)
+			if err != nil {
+				errs <- err
+			}
+			s.redisClient.Set(context.Background(), "LastMatch", string(dataJson), time.Hour*24).Err()
 
 			send <- -1
 			break
@@ -137,7 +137,7 @@ func (s *matchLogUsecase) player(player string, receive chan int, send chan int,
 }
 
 func tablePing(ballPower *int) error {
-	tableUrl := "https://table-pnjk7vm6tq-as.a.run.app/ping?ball_power=" + strconv.Itoa(*ballPower)
+	tableUrl := "http://localhost:8889/ping?ball_power=" + strconv.Itoa(*ballPower)
 	response, err := http.Get(tableUrl)
 	if err != nil {
 		return err

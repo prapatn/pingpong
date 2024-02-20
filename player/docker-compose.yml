@@ -22,43 +22,50 @@ services:
       - ./config/redis.conf:/redis.conf
     command: redis-server /redis.conf
 
-  mariadb:
-    image: mariadb
-    container_name: mariadb
-    environment:
-      - MARIADB_ROOT_PASSWORD=example
-      - MARIADB_DATABASE=local
-    ports:
-      - 3306:3306
-    volumes:
-      - ./data/mariadb:/var/lib/mysql
+  # mariadb:
+  #   image: mariadb
+  #   container_name: mariadb
+  #   environment:
+  #     - MARIADB_ROOT_PASSWORD=example
+  #     - MARIADB_DATABASE=local
+  #   ports:
+  #     - 3306:3306
+  #   volumes:
+  #     - ./data/mariadb:/var/lib/mysql
 
-  k6:
-    image: grafana/k6
-    container_name: k6
-    volumes:
-      - ./scripts:/scripts
-    environment:
-      - K6_OUT=influxdb=http://influxdb:8086/k6
+  # k6:
+  #   image: grafana/k6
+  #   container_name: k6
+  #   volumes:
+  #     - ./scripts:/scripts
+  #   environment:
+  #     - K6_OUT=influxdb=http://influxdb:8086/k6
   
-  influxdb:
-    image: influxdb:1.8.10
-    container_name: influxdb
-    environment: 
-      - INFLUXDB_DB=k6
-      - INFLUXDB_HTTP_MAX_BODY_SIZE=0
-    ports:
-      - 8086:8086
-    volumes:
-      - ./data/influxdb:/var/lib/influxdb
+  # influxdb:
+  #   image: influxdb:1.8.10
+  #   container_name: influxdb
+  #   environment: 
+  #     - INFLUXDB_DB=k6
+  #     - INFLUXDB_HTTP_MAX_BODY_SIZE=0
+  #   ports:
+  #     - 8086:8086
+  #   volumes:
+  #     - ./data/influxdb:/var/lib/influxdb
 
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+  # grafana:
+  #   image: grafana/grafana
+  #   container_name: grafana
+  #   environment:
+  #     - GF_AUTH_ANONYMOUS_ENABLED=true
+  #     - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - ./data/grafana:/var/lib/grafana
+
+
+  player:
+    build: .
     ports:
-      - 3000:3000
-    volumes:
-      - ./data/grafana:/var/lib/grafana
+      - "8888:8888"
+    restart: unless-stopped

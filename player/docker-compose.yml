@@ -10,11 +10,7 @@ services:
   #   ports:
   #     - 27017:27017
   #   volumes:
-<<<<<<< HEAD
-  #     - ./database-data:/data/db
-=======
       # - ./database-data:/data/db
->>>>>>> skeleton
   
   redis:
     image: redis

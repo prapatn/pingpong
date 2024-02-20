@@ -5,13 +5,12 @@ import (
 	"log"
 	"os"
 	matchlogs "player/pkg/match_logs"
-	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 )
@@ -89,15 +88,13 @@ func initMySQL() *gorm.DB {
 
 	// Read database configuration from .env file
 	host := os.Getenv("DB_HOST")
-	port, _ := strconv.Atoi(os.Getenv("DB_PORT")) // Convert port to int
+	// port, _ := strconv.Atoi(os.Getenv("DB_PORT")) // Convert port to int
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
 	dbname := os.Getenv("DB_NAME")
 
-	// Configure your PostgreSQL database details here
-	dsn := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+	// Configure your MySQL database details here
+	dsn := fmt.Sprintf("%s:%s@unix(%s)/%s", user, password, host, dbname)
 
 	// New logger for detailed SQL logging
 	newLogger := gormLogger.New(
@@ -109,7 +106,7 @@ func initMySQL() *gorm.DB {
 		},
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: newLogger,
 	})
 

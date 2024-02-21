@@ -6,4 +6,6 @@ services:
     build: .
     ports:
       - "8889:8889"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped

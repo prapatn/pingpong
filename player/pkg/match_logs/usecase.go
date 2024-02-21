@@ -52,8 +52,9 @@ func (s *matchLogUsecase) InsertLog() ([]models.MatchLog, error) {
 	fmt.Printf("Match %v started!\n", matchNumber)
 	csvFile, err := os.Create(fmt.Sprintf("csv-log/match_%v_log.csv", matchNumber))
 	if err != nil {
-		log.Println(err)
-		return matchLogs, errors.New(fmt.Sprintf("Create file match_%v_log.csv fail", matchNumber))
+		errStr := fmt.Sprintf("Create file match_%v_log.csv fail", matchNumber)
+		log.Println(errStr)
+		return matchLogs, errors.New(errStr)
 	}
 
 	csvwriter := csv.NewWriter(csvFile)
@@ -63,21 +64,21 @@ func (s *matchLogUsecase) InsertLog() ([]models.MatchLog, error) {
 
 	chA := make(chan int)
 	chB := make(chan int)
-	errs := make(chan error)
+	var errs error
 
-	go s.player("A", chA, chB, errs, csvwriter)
-	go s.player("B", chB, chA, errs, csvwriter)
+	go s.player("A", chA, chB, &errs, csvwriter)
+	go s.player("B", chB, chA, &errs, csvwriter)
 
 	// Start Player A
 	chA <- 0
 	wg.Wait()
-	if err, ok := <-errs; ok {
-		return matchLogs, err
+	if errs != nil {
+		return matchLogs, errs
 	}
 	return matchLogs, nil
 }
 
-func (s *matchLogUsecase) player(player string, receive chan int, send chan int, errs chan error, csvwriter *csv.Writer) {
+func (s *matchLogUsecase) player(player string, receive chan int, send chan int, errs *error, csvwriter *csv.Writer) {
 	// mutex.Lock()
 	// defer mutex.Unlock()
 	defer wg.Done()
@@ -86,7 +87,6 @@ func (s *matchLogUsecase) player(player string, receive chan int, send chan int,
 		if ballPowerReceive < 0 {
 			close(receive)
 			close(send)
-			close(errs)
 			break
 		}
 
@@ -96,7 +96,8 @@ func (s *matchLogUsecase) player(player string, receive chan int, send chan int,
 			fmt.Printf("Player %v loses (Power : %v)\n", player, ballPowerSend)
 			err := s.writeToCSV(player, turn, ballPowerSend, csvwriter)
 			if err != nil {
-				errs <- err
+				*errs = err
+				break
 			}
 
 			//InsertMatch to Database
@@ -108,7 +109,8 @@ func (s *matchLogUsecase) player(player string, receive chan int, send chan int,
 			//Set Redis
 			dataJson, err := json.Marshal(matchLogs)
 			if err != nil {
-				errs <- err
+				*errs = err
+				break
 			}
 			s.redisClient.Set(context.Background(), "LastMatch", string(dataJson), time.Hour*24).Err()
 
@@ -119,14 +121,14 @@ func (s *matchLogUsecase) player(player string, receive chan int, send chan int,
 		//Modified power
 		err := tablePing(&ballPowerSend)
 		if err != nil {
-			errs <- err
+			*errs = err
 			send <- -1
 			break
 		}
 
 		err = s.writeToCSV(player, turn, ballPowerSend, csvwriter)
 		if err != nil {
-			errs <- err
+			*errs = err
 			send <- -1
 			break
 		}
@@ -137,7 +139,7 @@ func (s *matchLogUsecase) player(player string, receive chan int, send chan int,
 }
 
 func tablePing(ballPower *int) error {
-	tableUrl := "http://localhost:8889/ping?ball_power=" + strconv.Itoa(*ballPower)
+	tableUrl := "http://localhost:8881/ping?ball_power=" + strconv.Itoa(*ballPower)
 	response, err := http.Get(tableUrl)
 	if err != nil {
 		return err
@@ -148,7 +150,11 @@ func tablePing(ballPower *int) error {
 	if err != nil {
 		return err
 	}
-	*ballPower, _ = strconv.Atoi(string(data))
+
+	*ballPower, err = strconv.Atoi(string(data))
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

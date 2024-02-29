@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	matchlogs "player/pkg/match_logs"
 	"strconv"
 	"time"
@@ -18,6 +19,19 @@ import (
 )
 
 func main() {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Error getting current working directory:", err)
+		return
+	}
+	cmd := exec.Command(currentDir+"\\cloud-sql-proxy", "-instances=project-tutorial-413803:asia-southeast1:godeply=tcp:3306")
+	if err := cmd.Start(); err != nil {
+		log.Fatal(err)
+	}
+	defer cmd.Process.Kill()
+
+	time.Sleep(2 * time.Second)
+
 	redisClient := initRedis()
 	// db := initMongoDB()
 	db := initMySQL()

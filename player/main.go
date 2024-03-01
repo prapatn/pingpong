@@ -43,7 +43,7 @@ func main() {
 
 func initRedis() *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr: "host.docker.internal:6379",
+		Addr: "redis:6379",
 	})
 }
 

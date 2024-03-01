@@ -1,0 +1,103 @@
+version: '3'
+services:
+  # mongodb:
+  #   image: mongo:latest
+  #   container_name: mongodb
+  #   restart: unless-stopped
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: password
+  #   ports:
+  #     - 27017:27017
+  #   volumes:
+      # - ./database-data:/data/db
+  
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data/redis:/data
+      - ./config/redis.conf:/redis.conf
+    command: redis-server /redis.conf
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # mariadb:
+  #   image: mariadb
+  #   container_name: mariadb
+  #   environment:
+  #     - MARIADB_ROOT_PASSWORD=example
+  #     - MARIADB_DATABASE=local
+  #   ports:
+  #     - 3306:3306
+  #   volumes:
+  #     - ./data/mariadb:/var/lib/mysql
+
+  # k6:
+  #   image: grafana/k6
+  #   container_name: k6
+  #   volumes:
+  #     - ./scripts:/scripts
+  #   environment:
+  #     - K6_OUT=influxdb=http://influxdb:8086/k6
+  
+  # influxdb:
+  #   image: influxdb:1.8.10
+  #   container_name: influxdb
+  #   environment: 
+  #     - INFLUXDB_DB=k6
+  #     - INFLUXDB_HTTP_MAX_BODY_SIZE=0
+  #   ports:
+  #     - 8086:8086
+  #   volumes:
+  #     - ./data/influxdb:/var/lib/influxdb
+
+  # grafana:
+  #   image: grafana/grafana
+  #   container_name: grafana
+  #   environment:
+  #     - GF_AUTH_ANONYMOUS_ENABLED=true
+  #     - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - ./data/grafana:/var/lib/grafana
+
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - ./data/postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # restart: unless-stopped
+
+  player:
+    build: ./player
+    container_name: player
+    ports:
+      - "8888:8888"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  table:
+    build: ./table
+    container_name: table
+    ports:
+      - "8889:8889"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

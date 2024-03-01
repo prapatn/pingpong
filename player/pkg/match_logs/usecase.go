@@ -139,7 +139,7 @@ func (s *matchLogUsecase) player(player string, receive chan int, send chan int,
 }
 
 func tablePing(ballPower *int) error {
-	tableUrl := "http://host.docker.internal:8889/ping?ball_power=" + strconv.Itoa(*ballPower)
+	tableUrl := "http://table:8889/ping?ball_power=" + strconv.Itoa(*ballPower)
 	response, err := http.Get(tableUrl)
 	if err != nil {
 		return err

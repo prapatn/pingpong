@@ -46,7 +46,7 @@ var wg sync.WaitGroup
 func (s *matchLogUsecase) InsertLog() ([]models.MatchLog, error) {
 	mutex.Lock()
 	defer mutex.Unlock()
-
+	matchLogs = nil
 	//CSV
 	matchNumber = strconv.FormatInt(time.Now().UnixNano(), 10)
 	fmt.Printf("Match %v started!\n", matchNumber)

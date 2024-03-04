@@ -12,17 +12,17 @@ services:
   #   volumes:
       # - ./database-data:/data/db
   
-  redis:
-    image: redis
-    container_name: redis
-    ports:
-      - 6379:6379
-    volumes:
-      - ./data/redis:/data
-      - ./config/redis.conf:/redis.conf
-    command: redis-server /redis.conf
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+  # redis:
+  #   image: redis
+  #   container_name: redis
+  #   ports:
+  #     - 6379:6379
+  #   volumes:
+  #     - ./data/redis:/data
+  #     - ./config/redis.conf:/redis.conf
+  #   command: redis-server /redis.conf
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
 
   # mariadb:
   #   image: mariadb
@@ -66,19 +66,19 @@ services:
   #     - ./data/grafana:/var/lib/grafana
 
 
-  postgres:
-    image: postgres:latest
-    container_name: postgres
-    environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mypassword
-    volumes:
-      - ./data/postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+  # postgres:
+  #   image: postgres:latest
+  #   container_name: postgres
+  #   environment:
+  #     POSTGRES_DB: postgres
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: mypassword
+  #   volumes:
+  #     - ./data/postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
     # restart: unless-stopped
 
   player:

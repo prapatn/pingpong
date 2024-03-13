@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"player/pkg/config"
 	matchlogs "player/pkg/match_logs"
-	"strconv"
 	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 )
 
 func main() {
+	config.GetEnv()
 	redisClient := initRedis()
 	// db := initMongoDB()
 	db := initMySQL()
@@ -43,7 +43,7 @@ func main() {
 
 func initRedis() *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr: "redis:6379",
+		Addr: config.Env.Redis,
 	})
 }
 
@@ -82,23 +82,11 @@ func initRedis() *redis.Client {
 // }
 
 func initMySQL() *gorm.DB {
-	// Load .env file
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
-	// Read database configuration from .env file
-	host := os.Getenv("DB_HOST")
-	port, _ := strconv.Atoi(os.Getenv("DB_PORT")) // Convert port to int
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
 
 	// Configure your PostgreSQL database details here
 	dsn := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+		config.Env.Host, config.Env.Port, config.Env.User, config.Env.Password, config.Env.DBName)
 
 	// New logger for detailed SQL logging
 	newLogger := gormLogger.New(

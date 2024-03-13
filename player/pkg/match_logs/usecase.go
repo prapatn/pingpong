@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"player/pkg/config"
 	"player/pkg/domain"
 	"player/pkg/models"
 	"strconv"
@@ -139,7 +140,7 @@ func (s *matchLogUsecase) player(player string, receive chan int, send chan int,
 }
 
 func tablePing(ballPower *int) error {
-	tableUrl := "http://table:8889/ping?ball_power=" + strconv.Itoa(*ballPower)
+	tableUrl := config.Env.Table + "/ping?ball_power=" + strconv.Itoa(*ballPower)
 	response, err := http.Get(tableUrl)
 	if err != nil {
 		return err

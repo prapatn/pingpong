@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: player-deployment
+  labels:
+    app: player
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: player
+  template:
+    metadata:
+      name: player-pods
+      labels:
+        app: player
+    spec:
+      containers:
+        - name: player
+          image: prapatkiingz/pingpong-player:latest
+          ports:
+          - containerPort: 8888
+          env:
+          - name: DB_HOST
+            value: "postgresql"
+          - name: TABLE_URL
+            value: "http://table-service:8889"
+          - name: REDIS_URL
+            value: "pingpong-redis-headless:6379"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name:  player-service
+spec:
+  selector:
+    app:  player
+  type: NodePort
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8888
+    nodePort: 30888

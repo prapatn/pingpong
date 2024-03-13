@@ -1,0 +1,29 @@
+apiVersion: v2
+name: pingpong
+description: A Helm chart for pingpong
+type: application
+
+version: 1.0.0
+
+appVersion: "1.0"
+
+dependencies:
+  ### pgSQL ###
+  - name: "postgresql"
+    alias: postgresql
+    condition: postgresql.enabled
+    repository: "https://charts.bitnami.com/bitnami"
+    version: "13.1.5"
+
+  - name: "pgweb"
+    alias: pgweb
+    condition: pgweb.enabled
+    repository: "https://charts.ectobit.com"
+    version: "0.1.9"
+
+  ### Redis ###
+  - name: "redis"
+    alias: redis
+    condition: redis.enabled
+    repository: "https://charts.bitnami.com/bitnami"
+    version: "18.19.2"

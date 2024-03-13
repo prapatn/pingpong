@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-pgweb-nodeport
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: http
+    nodePort: 32080
+  selector:
+    app.kubernetes.io/instance: demo
+    app.kubernetes.io/name: pgweb
+  type: NodePort

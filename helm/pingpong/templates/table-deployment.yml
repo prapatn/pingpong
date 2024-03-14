@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: table
-          image: prapatkiingz/pingpong-table:latest
+          image: prapatkiingz/boilerplate-pingpong-table:latest
           ports:
           - containerPort: 8889
 ---

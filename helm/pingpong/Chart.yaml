@@ -8,18 +8,9 @@ version: 1.0.0
 appVersion: "1.0"
 
 dependencies:
-  ### pgSQL ###
-  - name: "postgresql"
-    alias: postgresql
-    condition: postgresql.enabled
-    repository: "https://charts.bitnami.com/bitnami"
-    version: "13.1.5"
+  ### MariaDB ###
+  # helm install mariadb bitnami/mariadb --set mariadb.rootPassword=password,mariadb.db.name=pingpong,mariadb.db.username=example,mariadb.db.password=password -n pingpong
 
-  - name: "pgweb"
-    alias: pgweb
-    condition: pgweb.enabled
-    repository: "https://charts.ectobit.com"
-    version: "0.1.9"
 
   ### Redis ###
   - name: "redis"

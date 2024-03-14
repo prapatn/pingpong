@@ -1,0 +1,21 @@
+mariadb:
+  enabled: true
+  auth:
+    rootPassword: password
+    database: pingpong
+    user: example
+    password: password
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+  secondary:
+    enabled: true
+    replicas: 2
+    persistence:
+      enabled: true
+      size: 8Gi
+  service:
+    type: ClusterIP
+  metrics:
+    enabled: false

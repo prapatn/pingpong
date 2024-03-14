@@ -1,20 +1,3 @@
-domain: pgweb.chalam-kitchen.com
-
-postgresql:
-  enabled: true
-  fullnameOverride: postgresql
-  auth:
-    database: postgres
-    username: postgres
-    password: mypassword # Just demo, we SHOULD not hard code the secret here
-    postgresPassword: mypassword #postgres
-
-pgweb:
-  enabled: true
-  nameOverride: pgweb
-  ingress:
-    enabled: false
-
 redis:
   enabled: true
   auth:

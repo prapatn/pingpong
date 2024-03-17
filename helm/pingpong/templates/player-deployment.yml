@@ -20,19 +20,12 @@ spec:
           image: prapatkiingz/boilerplate-pingpong-player:latest
           ports:
           - containerPort: 8888
-          env:
-          - name: MYSQL_HOST
-            value: "pingpong-mariadb:3306"
-          - name: TABLE_URL
-            value: "http://table-service:8889"
-          - name: REDIS_HOST
-            value: "pingpong-redis-master:6379"
-          - name: MYSQL_PASSWORD
-            value: "password"
-          - name: MYSQL_USERNAME
-            value: "root"
-          - name: MYSQL_DATABASE
-            value: "pingpong"
+          envFrom:
+          - configMapRef:
+              name: player-config
+          - secretRef:
+              name: player-secret
+         
 ---
 kind: Service
 apiVersion: v1

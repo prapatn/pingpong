@@ -1,0 +1,10 @@
+kind: ConfigMap 
+apiVersion: v1 
+metadata:
+  name: player-config
+data:
+  TABLE_URL: "http://table-service:8889"
+  REDIS_HOST: "pingpong-redis-master:6379"
+  MYSQL_HOST: "pingpong-mariadb:3306"
+  MYSQL_USERNAME: "root"
+  MYSQL_DATABASE: "pingpong"

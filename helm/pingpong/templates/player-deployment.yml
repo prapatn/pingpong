@@ -22,7 +22,7 @@ spec:
           - containerPort: 8888
           env:
           - name: MYSQL_HOST
-            value: "mariadb:3306"
+            value: "pingpong-mariadb:3306"
           - name: TABLE_URL
             value: "http://table-service:8889"
           - name: REDIS_HOST
@@ -30,7 +30,7 @@ spec:
           - name: MYSQL_PASSWORD
             value: "password"
           - name: MYSQL_USERNAME
-            value: "example"
+            value: "root"
           - name: MYSQL_DATABASE
             value: "pingpong"
 ---

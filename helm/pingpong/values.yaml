@@ -2,3 +2,11 @@ redis:
   enabled: true
   auth:
     enabled: false
+
+mariadb:
+  enabled: true
+  auth:
+    rootPassword: password
+    database: pingpong
+    username: example
+    password: password

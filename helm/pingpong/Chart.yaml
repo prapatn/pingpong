@@ -9,7 +9,10 @@ appVersion: "1.0"
 
 dependencies:
   ### MariaDB ###
-  # helm install mariadb bitnami/mariadb --set mariadb.rootPassword=password,mariadb.db.name=pingpong,mariadb.db.username=example,mariadb.db.password=password -n pingpong
+  # helm install mariadb bitnami/mariadb --set auth.rootPassword=password --set auth.database=pingpong --set auth.username=example --set auth.password=password -n pingpong
+  - name: "mariadb"
+    repository: "https://charts.bitnami.com/bitnami"
+    version: "16.5.0"
 
 
   ### Redis ###
